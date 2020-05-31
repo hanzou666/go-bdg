@@ -59,3 +59,11 @@ func (p *Path) fixNodeId(baseId int64) *Path {
 		Mappings: newMappings,
 	}
 }
+
+func makePathIndex(paths []*Path) map[string]*Path {
+	name2Path := map[string]*Path{}
+	for _, path := range paths {
+		name2Path[path.Name] = path
+	}
+	return name2Path
+}

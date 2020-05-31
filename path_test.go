@@ -172,3 +172,61 @@ func TestPath_fixNodeId(t *testing.T) {
 		})
 	}
 }
+
+func Test_makePathIndex(t *testing.T) {
+	type args struct {
+		paths []*Path
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]*Path
+	}{
+		{
+			name: "normal case",
+			args: args{paths: []*Path{
+				{
+					Name: "spp1",
+					Mappings: []*Mapping{{
+						Position: &Position{1, 0, false, ""},
+						Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+						Rank:     1,
+					}},
+				},
+				{
+					Name: "spp2",
+					Mappings: []*Mapping{{
+						Position: &Position{1, 0, false, ""},
+						Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+						Rank:     1,
+					}},
+				},
+			}},
+			want: map[string]*Path{
+				"spp1": {
+					Name: "spp1",
+					Mappings: []*Mapping{{
+						Position: &Position{1, 0, false, ""},
+						Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+						Rank:     1,
+					}},
+				},
+				"spp2": {
+					Name: "spp2",
+					Mappings: []*Mapping{{
+						Position: &Position{1, 0, false, ""},
+						Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+						Rank:     1,
+					}},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := makePathIndex(tt.args.paths); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("makePathIndex() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
