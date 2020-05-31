@@ -77,7 +77,7 @@ func TestNode_fixNodeId(t *testing.T) {
 			name: "normal case",
 			fields: fields{
 				Id:  1,
-				Seq: NewDnaSeq("ATC"),
+				Seq: NewDnaSeqFromStr("ATC"),
 				Len: 3,
 			},
 			args: args{baseId: 10},

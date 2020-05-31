@@ -9,7 +9,7 @@ type Coordinate struct {
 	End   int64
 }
 
-func NewDnaSeq(dnaStr string) *DnaSeq {
+func NewDnaSeqFromStr(dnaStr string) *DnaSeq {
 	return &DnaSeq{Seq: []byte(dnaStr)}
 }
 

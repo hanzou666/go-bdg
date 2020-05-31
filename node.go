@@ -15,7 +15,7 @@ func NewNode(nodeId int64, seq *DnaSeq) *Node {
 }
 
 func NewNodeFromString(nodeId int64, seq string) *Node {
-	dnaSeq := NewDnaSeq(seq)
+	dnaSeq := NewDnaSeqFromStr(seq)
 	return NewNode(nodeId, dnaSeq)
 }
 
