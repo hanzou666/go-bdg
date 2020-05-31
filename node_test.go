@@ -125,3 +125,29 @@ func Test_getMaxIdNode(t *testing.T) {
 		})
 	}
 }
+
+func Test_makeNodeIndex(t *testing.T) {
+	type args struct {
+		nodes []*Node
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantId2Node map[int64]*Node
+	}{
+		{
+			name: "normal case",
+			args: args{
+				nodes: []*Node{NewNodeFromString(1, "A"), NewNodeFromString(2, "T"), NewNodeFromString(3, "G")},
+			},
+			wantId2Node: map[int64]*Node{1: NewNodeFromString(1, "A"), 2: NewNodeFromString(2, "T"), 3: NewNodeFromString(3, "G")},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotId2Node := makeNodeIndex(tt.args.nodes); !reflect.DeepEqual(gotId2Node, tt.wantId2Node) {
+				t.Errorf("makeNodeIndex() = %v, want %v", gotId2Node, tt.wantId2Node)
+			}
+		})
+	}
+}

@@ -32,3 +32,11 @@ func getMaxIdNode(nodes []*Node) (maxNode *Node) {
 	}
 	return
 }
+
+func makeNodeIndex(nodes []*Node) (id2Node map[int64]*Node) {
+	id2Node = map[int64]*Node{}
+	for _, node := range nodes {
+		id2Node[node.Id] = node
+	}
+	return
+}
