@@ -24,12 +24,12 @@ type Path struct {
 	Mappings []*Mapping `json:"mapping"`
 }
 
-func NewEditOfNode(n *Node) *Edit {
-	return &Edit{
+func MakeEditsFromNode(n *Node) []*Edit {
+	return []*Edit{{
 		FromLength: int32(n.Len),
 		ToLength:   int32(n.Len),
 		Sequence:   n.Seq,
-	}
+	}}
 }
 
 func (p *Position) fixNodeId(baseId int64) *Position {
@@ -46,5 +46,16 @@ func (m *Mapping) fixNodeId(baseId int64) *Mapping {
 		Position: m.Position.fixNodeId(baseId),
 		Edits:    m.Edits,
 		Rank:     m.Rank,
+	}
+}
+
+func (p *Path) fixNodeId(baseId int64) *Path {
+	var newMappings []*Mapping
+	for _, mapping := range p.Mappings {
+		newMappings = append(newMappings, mapping.fixNodeId(baseId))
+	}
+	return &Path{
+		Name:     p.Name,
+		Mappings: newMappings,
 	}
 }

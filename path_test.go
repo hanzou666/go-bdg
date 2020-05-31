@@ -5,31 +5,31 @@ import (
 	"testing"
 )
 
-func TestNewEditOfNode(t *testing.T) {
+func TestMakeEditsFromNode(t *testing.T) {
 	type args struct {
 		n *Node
 	}
 	tests := []struct {
 		name string
 		args args
-		want *Edit
+		want []*Edit
 	}{
 		{
 			name: "normal case",
 			args: args{
 				n: NewNodeFromString(1, "ATC"),
 			},
-			want: &Edit{
+			want: []*Edit{{
 				FromLength: 3,
 				ToLength:   3,
 				Sequence:   NewDnaSeqFromStr("ATC"),
-			},
+			}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewEditOfNode(tt.args.n); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewEditOfNode() = %v, want %v", got, tt.want)
+			if got := MakeEditsFromNode(tt.args.n); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MakeEditsFromNode() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -55,12 +55,7 @@ func TestPosition_fixNodeId(t *testing.T) {
 			name:   "normal case",
 			fields: fields{NodeId: 1, Offset: 0, IsReversed: false, Name: "pos1"},
 			args:   args{10},
-			want: &Position{
-				NodeId:     11,
-				Offset:     0,
-				IsReversed: false,
-				Name:       "pos1",
-			},
+			want:   &Position{11, 0, false, "pos1"},
 		},
 	}
 	for _, tt := range tests {
@@ -96,25 +91,15 @@ func TestMapping_fixNodeId(t *testing.T) {
 		{
 			name: "normal case",
 			fields: fields{
-				Position: &Position{
-					NodeId:     1,
-					Offset:     0,
-					IsReversed: false,
-					Name:       "pos1",
-				},
-				Edits: []*Edit{NewEditOfNode(NewNodeFromString(1, "ATG"))},
-				Rank:  1,
+				Position: &Position{1, 0, false, "pos1"},
+				Edits:    MakeEditsFromNode(NewNodeFromString(1, "ATG")),
+				Rank:     1,
 			},
 			args: args{baseId: 10},
 			want: &Mapping{
-				Position: &Position{
-					NodeId:     11,
-					Offset:     0,
-					IsReversed: false,
-					Name:       "pos1",
-				},
-				Edits: []*Edit{NewEditOfNode(NewNodeFromString(11, "ATG"))},
-				Rank:  1,
+				Position: &Position{11, 0, false, "pos1"},
+				Edits:    MakeEditsFromNode(NewNodeFromString(11, "ATG")),
+				Rank:     1,
 			},
 		},
 	}
@@ -126,6 +111,62 @@ func TestMapping_fixNodeId(t *testing.T) {
 				Rank:     tt.fields.Rank,
 			}
 			if got := m.fixNodeId(tt.args.baseId); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("fixNodeId() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPath_fixNodeId(t *testing.T) {
+	type fields struct {
+		Name     string
+		Mappings []*Mapping
+	}
+	type args struct {
+		baseId int64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *Path
+	}{
+		{
+			name: "normal case",
+			fields: fields{
+				Name: "spp1",
+				Mappings: []*Mapping{{
+					Position: &Position{1, 0, false, ""},
+					Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+					Rank:     1,
+				}, {
+					Position: &Position{2, 0, false, ""},
+					Edits:    MakeEditsFromNode(NewNodeFromString(2, "T")),
+					Rank:     2,
+				}},
+			},
+			args: args{baseId: 10},
+			want: &Path{
+				Name: "spp1",
+				Mappings: []*Mapping{{
+					Position: &Position{11, 0, false, ""},
+					Edits:    MakeEditsFromNode(NewNodeFromString(1, "A")),
+					Rank:     1,
+				}, {
+					Position: &Position{12, 0, false, ""},
+					Edits:    MakeEditsFromNode(NewNodeFromString(2, "T")),
+					Rank:     2,
+				}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Path{
+				Name:     tt.fields.Name,
+				Mappings: tt.fields.Mappings,
+			}
+			if got := p.fixNodeId(tt.args.baseId); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("fixNodeId() = %v, want %v", got, tt.want)
 			}
 		})
